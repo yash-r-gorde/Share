@@ -1,0 +1,532 @@
+{
+  "info": {
+    "name": "TranspoLink - Incident + Identity APIs",
+    "_postman_id": "5f2f8f6b-0875-4f8a-95bb-9f31e171a5dc",
+    "description": "Postman collection for TranspoLink.Modules.Incident and TranspoLink.Modules.Identity only.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "https://localhost:5001" },
+    { "key": "accessToken", "value": "" },
+    { "key": "refreshToken", "value": "" },
+    { "key": "incidentId", "value": "00000000-0000-0000-0000-000000000000" },
+    { "key": "resolutionId", "value": "00000000-0000-0000-0000-000000000000" },
+    { "key": "userId", "value": "00000000-0000-0000-0000-000000000000" }
+  ],
+  "item": [
+    {
+      "name": "Identity Module",
+      "item": [
+        {
+          "name": "Auth - Register",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"Citizen Demo\",\n  \"email\": \"citizen@example.com\",\n  \"password\": \"Pass@12345\",\n  \"phoneNumber\": \"+15550001111\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/Auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "Auth", "register"]
+            }
+          }
+        },
+        {
+          "name": "Auth - Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const response = pm.response.json();",
+                  "const data = response.data || response.Data;",
+                  "if (data) {",
+                  "  pm.collectionVariables.set('accessToken', data.accessToken || data.AccessToken || '');",
+                  "  pm.collectionVariables.set('refreshToken', data.refreshToken || data.RefreshToken || '');",
+                  "  if (data.user || data.User) {",
+                  "    const user = data.user || data.User;",
+                  "    pm.collectionVariables.set('userId', user.id || user.Id || pm.collectionVariables.get('userId'));",
+                  "  }",
+                  "}",
+                  "pm.test('Access token is captured', function () {",
+                  "  pm.expect(pm.collectionVariables.get('accessToken')).to.not.be.empty;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"citizen@example.com\",\n  \"password\": \"Pass@12345\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/Auth/Login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "Auth", "Login"]
+            }
+          }
+        },
+        {
+          "name": "Auth - Refresh Token",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/Auth/refresh",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "Auth", "refresh"]
+            }
+          }
+        },
+        {
+          "name": "Auth - Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/Auth/logout",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "Auth", "logout"]
+            }
+          }
+        },
+        {
+          "name": "Auth - Logout From All Devices",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/Auth/logout-from-all-devices",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "Auth", "logout-from-all-devices"]
+            }
+          }
+        },
+        {
+          "name": "Users - Get All",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/Users/Get-Users?page=1&pgSize=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "Users", "Get-Users"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "pgSize", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Users - Get By Id",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/Users/Get-UserById/{{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "Users", "Get-UserById", "{{userId}}"]
+            }
+          }
+        },
+        {
+          "name": "Users - Create User",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"Traffic Officer Demo\",\n  \"email\": \"officer@example.com\",\n  \"password\": \"Pass@12345\",\n  \"phoneNumber\": \"+15550002222\",\n  \"role\": 1\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/Users/Create-User",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "Users", "Create-User"]
+            }
+          }
+        },
+        {
+          "name": "Users - Update User",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"Updated Name\",\n  \"phoneNumber\": \"+15550003333\",\n  \"email\": \"updated@example.com\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/Users/Update-User/{{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "Users", "Update-User", "{{userId}}"]
+            }
+          }
+        },
+        {
+          "name": "Users - Change Password",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"currentPassword\": \"Pass@12345\",\n  \"newPassword\": \"NewPass@12345\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/Users/ChnagePassword/{{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "Users", "ChnagePassword", "{{userId}}"]
+            }
+          }
+        },
+        {
+          "name": "Users - Assign Role",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"role\": 3\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/Users/AssignRole/{{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "Users", "AssignRole", "{{userId}}"]
+            }
+          }
+        },
+        {
+          "name": "Users - Activate",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/Users/activate/{{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "Users", "activate", "{{userId}}"]
+            }
+          }
+        },
+        {
+          "name": "Users - Deactivate",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/Users/Deactivate-User/{{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "Users", "Deactivate-User", "{{userId}}"]
+            }
+          }
+        },
+        {
+          "name": "Users - Audit Logs By User",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/Users/{{userId}}/audit-logs-by-id?page=1&pageSize=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "Users", "{{userId}}", "audit-logs-by-id"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "pageSize", "value": "20" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Users - All Audit Logs",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/Users/get-all/audit-logs?page=1&pageSize=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "Users", "get-all", "audit-logs"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "pageSize", "value": "20" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Incident Module",
+      "item": [
+        {
+          "name": "Incidents - Create",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": 0,\n  \"location\": \"MG Road Junction\",\n  \"date\": \"2026-01-01T10:00:00Z\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/incidents",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "incidents"]
+            }
+          }
+        },
+        {
+          "name": "Incidents - Get All",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/incidents?page=1&pageSize=10&type=0&status=0",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "incidents"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "pageSize", "value": "10" },
+                { "key": "type", "value": "0" },
+                { "key": "status", "value": "0" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Incidents - Statistics",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/incidents/statistics",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "incidents", "statistics"]
+            }
+          }
+        },
+        {
+          "name": "Incidents - My Reports",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/incidents/my-reports?page=1&pageSize=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "incidents", "my-reports"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "pageSize", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Incidents - Get By Id",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/incidents/{{incidentId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "incidents", "{{incidentId}}"]
+            }
+          }
+        },
+        {
+          "name": "Incidents - Update",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": 1,\n  \"location\": \"Airport Road\",\n  \"date\": \"2026-01-01T12:00:00Z\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/incidents/{{incidentId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "incidents", "{{incidentId}}"]
+            }
+          }
+        },
+        {
+          "name": "Incidents - Delete",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/incidents/{{incidentId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "incidents", "{{incidentId}}"]
+            }
+          }
+        },
+        {
+          "name": "Incidents - Update Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": 2\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/incidents/{{incidentId}}/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "incidents", "{{incidentId}}", "status"]
+            }
+          }
+        },
+        {
+          "name": "Resolutions - Create",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"actions\": \"Traffic diverted and lane cleared\",\n  \"date\": \"2026-01-01T13:00:00Z\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/incidents/{{incidentId}}/resolutions",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "incidents", "{{incidentId}}", "resolutions"]
+            }
+          }
+        },
+        {
+          "name": "Resolutions - Get By Incident",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/incidents/{{incidentId}}/resolutions",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "incidents", "{{incidentId}}", "resolutions"]
+            }
+          }
+        },
+        {
+          "name": "Resolutions - Get By Id",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/resolutions/{{resolutionId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "resolutions", "{{resolutionId}}"]
+            }
+          }
+        },
+        {
+          "name": "Resolutions - Update",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"actions\": \"Incident fully handled\",\n  \"date\": \"2026-01-01T14:00:00Z\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/resolutions/{{resolutionId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "resolutions", "{{resolutionId}}"]
+            }
+          }
+        },
+        {
+          "name": "Resolutions - Update Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": 1\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/resolutions/{{resolutionId}}/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "resolutions", "{{resolutionId}}", "status"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
